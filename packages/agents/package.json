@@ -1,0 +1,38 @@
+{
+  "name": "@pr-reviewer-bot/agents",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PR Reviewer Bot Agents",
+  "author": "Shuraj Shampang <shuraj.shampang@gmail.com>",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": {
+      "import": "./dist/lib.es.js",
+      "require": "./dist/lib.umd.js"
+    }
+  },
+  "main": "./dist/lib.umd.js",
+  "module": "./dist/lib.es.js",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --emitDeclarationOnly && mv dist/src dist/types",
+    "sort-package": "npx sort-package-json",
+    "typecheck": "tsc --noEmit -p tsconfig.json --composite false"
+  },
+  "dependencies": {
+    "octokit": "^4.1.2",
+    "openai": "^4.87.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}

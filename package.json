@@ -1,0 +1,17 @@
+{
+  "name": "pr-reviewer-bot",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build:agent": "pnpm run build --filter=./packages/agents/"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "ts-node": "^10.9.2",
+    "@types/node": "22.13.10"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}
