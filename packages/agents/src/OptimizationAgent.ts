@@ -10,7 +10,7 @@ export class OptimizationAgent extends BaseAgent {
   private aiConnector: AIConnector;
   
   /**
-   * Create a new SecurityAgent
+   * Create a new OptimizationAgent
    * @param aiConnector AI connector
    */
   constructor(aiConnector: AIConnector) {
@@ -35,12 +35,140 @@ export class OptimizationAgent extends BaseAgent {
   async analyze(filePath: string, content: string, repoDir: string): Promise<CodeIssue[]> {
     const issues: CodeIssue[] = [];
     
-    // Check for common performance issues
+    // First, perform static analysis for common issues
     issues.push(...this.checkForLoopIssues(filePath, content));
     issues.push(...this.checkForMemoryIssues(filePath, content));
     issues.push(...this.checkForAsyncIssues(filePath, content));
     
+    // Then, use AI to find more complex optimization issues
+    try {
+      const aiIssues = await this.getAIOptimizationSuggestions(filePath, content);
+      issues.push(...aiIssues);
+    } catch (error) {
+      console.error(`Error getting AI optimization suggestions: ${error}`);
+    }
+    
     return issues;
+  }
+  
+  /**
+   * Get optimization suggestions from AI
+   * @param filePath Path to the file
+   * @param content Content of the file
+   * @returns Promise that resolves to an array of code issues
+   */
+  private async getAIOptimizationSuggestions(filePath: string, content: string): Promise<CodeIssue[]> {
+    const fileExtension = filePath.split('.').pop() || '';
+    const language = this.getLanguageFromExtension(fileExtension);
+    
+    if (!language) {
+      return [];
+    }
+    
+    const prompt = `
+You are a code optimization expert. Analyze the following ${language} code for performance issues and optimization opportunities.
+Focus on algorithmic efficiency, memory usage, and performance bottlenecks.
+Do not comment on style, security, or functionality unless it directly impacts performance.
+
+CODE:
+\`\`\`${language}
+${content}
+\`\`\`
+
+Provide your analysis in the following JSON format:
+{
+  "issues": [
+    {
+      "title": "Brief title of the issue",
+      "description": "Detailed explanation of the performance problem",
+      "severity": "CRITICAL|ERROR|WARNING|INFO",
+      "type": "OPTIMIZATION",
+      "location": {
+        "startLine": line_number,
+        "endLine": line_number
+      },
+      "suggestedFix": "Code or explanation of how to fix the issue"
+    }
+  ]
+}
+
+Only include genuine optimization issues. If no issues are found, return an empty array for "issues".
+`;
+
+    try {
+      const response = await this.aiConnector.generateResponse(prompt);
+      return this.parseAIResponse(response, filePath);
+    } catch (error) {
+      console.error(`Error generating AI response: ${error}`);
+      return [];
+    }
+  }
+  
+  /**
+   * Parse AI response into code issues
+   * @param response AI response
+   * @param filePath Path to the file
+   * @returns Array of code issues
+   */
+  private parseAIResponse(response: string, filePath: string): CodeIssue[] {
+    try {
+      // Extract JSON from response (in case AI includes extra text)
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return [];
+      }
+      
+      const jsonResponse = JSON.parse(jsonMatch[0]);
+      
+      if (!jsonResponse.issues || !Array.isArray(jsonResponse.issues)) {
+        return [];
+      }
+      
+      return jsonResponse.issues.map((issue: any) => ({
+        id: uuidv4(),
+        title: issue.title,
+        description: issue.description,
+        severity: issue.severity as IssueSeverity,
+        type: IssueType.OPTIMIZATION,
+        location: {
+          filePath,
+          startLine: issue.location?.startLine || 1,
+          endLine: issue.location?.endLine || 1
+        },
+        suggestedFix: issue.suggestedFix || '',
+        agent: this.name
+      }));
+    } catch (error) {
+      console.error(`Error parsing AI response: ${error}`);
+      return [];
+    }
+  }
+  
+  /**
+   * Get language from file extension
+   * @param extension File extension
+   * @returns Language name or null if unknown
+   */
+  private getLanguageFromExtension(extension: string): string | null {
+    const extensionMap: Record<string, string> = {
+      'js': 'JavaScript',
+      'ts': 'TypeScript',
+      'jsx': 'JavaScript React',
+      'tsx': 'TypeScript React',
+      'py': 'Python',
+      'java': 'Java',
+      'c': 'C',
+      'cpp': 'C++',
+      'cs': 'C#',
+      'go': 'Go',
+      'rb': 'Ruby',
+      'php': 'PHP',
+      'swift': 'Swift',
+      'kt': 'Kotlin',
+      'rs': 'Rust'
+    };
+    
+    return extensionMap[extension.toLowerCase()] || null;
   }
   
   /**
