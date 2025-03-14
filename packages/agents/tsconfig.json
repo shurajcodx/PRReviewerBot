@@ -1,12 +1,15 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "inlineSourceMap": false,
-    "outDir": "dist",
-    "paths": {"@/*": ["src/*"]},
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
-    "target": "ES2022"
+    "types": ["node"],
+    "tsBuildInfoFile": "./dist/agents.tsbuildinfo"
   },
-  "include": ["vite.config.*", "src/**/*", "../ai-connectors"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
