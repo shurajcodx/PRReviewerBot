@@ -6,7 +6,7 @@ import { reviewCommand } from './commands/review';
 const program = new Command();
 
 program
-  .name('pr-review-bot')
+  .name('prreviewbot')
   .description('AI-powered PR reviewer that checks code style, bugs, and security issues')
   .version('1.0.0');
 

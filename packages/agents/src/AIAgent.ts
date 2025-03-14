@@ -1,5 +1,5 @@
 import { BaseAgent } from './BaseAgent';
-import { CodeIssue, IssueType, IssueSeverity } from './types';
+import { CodeIssue, IssueType, IssueSeverity, getFileLanguage } from '@pr-reviewer-bot/core';
 import { AIConnector } from '@pr-reviewer-bot/ai-connectors';
 import path from 'path';
 
@@ -39,7 +39,7 @@ export class AIAgent extends BaseAgent {
     }
     
     // Get the language of the file
-    const language = this.getFileLanguage(filePath) || 'Unknown';
+    const language = getFileLanguage(filePath) || 'Unknown';
     
     // Get the relative path
     const relativePath = this.getRelativePath(filePath, repoDir);
@@ -52,64 +52,6 @@ export class AIAgent extends BaseAgent {
     
     // Parse the response
     return this.parseResponse(response, filePath);
-  }
-  
-  /**
-   * Get the language of a file based on its extension
-   * @param filePath File path
-   * @returns Language name or null if unknown
-   */
-  private getFileLanguage(filePath: string): string | null {
-    const ext = path.extname(filePath).toLowerCase();
-    
-    const languageMap: Record<string, string> = {
-      '.js': 'JavaScript',
-      '.jsx': 'JavaScript (React)',
-      '.ts': 'TypeScript',
-      '.tsx': 'TypeScript (React)',
-      '.py': 'Python',
-      '.rb': 'Ruby',
-      '.java': 'Java',
-      '.c': 'C',
-      '.cpp': 'C++',
-      '.cs': 'C#',
-      '.go': 'Go',
-      '.php': 'PHP',
-      '.html': 'HTML',
-      '.css': 'CSS',
-      '.scss': 'SCSS',
-      '.less': 'Less',
-      '.json': 'JSON',
-      '.xml': 'XML',
-      '.yaml': 'YAML',
-      '.yml': 'YAML',
-      '.md': 'Markdown',
-      '.sh': 'Shell',
-      '.bat': 'Batch',
-      '.ps1': 'PowerShell',
-      '.sql': 'SQL',
-      '.swift': 'Swift',
-      '.kt': 'Kotlin',
-      '.rs': 'Rust',
-      '.dart': 'Dart',
-      '.lua': 'Lua',
-      '.r': 'R',
-      '.pl': 'Perl',
-      '.ex': 'Elixir',
-      '.exs': 'Elixir',
-      '.erl': 'Erlang',
-      '.hs': 'Haskell',
-      '.fs': 'F#',
-      '.fsx': 'F#',
-      '.scala': 'Scala',
-      '.clj': 'Clojure',
-      '.groovy': 'Groovy',
-      '.tf': 'Terraform',
-      '.vue': 'Vue',
-      '.svelte': 'Svelte'
-    };
-    
-    return languageMap[ext] || null;
   }
   
   /**
@@ -230,7 +172,7 @@ If no issues are found, return an empty array: []
         );
       });
     } catch (error) {
-      console.warn(`Warning: Could not parse AI response: ${error instanceof Error ? error.message : String(error)}`);
+      console.warn(`Warning: Could not parse AI response: ${error.message}`);
       return [];
     }
   }

@@ -8,5 +8,5 @@
     "sourceMap": true,
     "target": "ES2022"
   },
-  "include": ["vite.config.*", "src/**/*"]
+  "include": ["vite.config.*", "src/**/*", "../ai-connectors"]
 }

@@ -1,8 +1,8 @@
 {
-  "name": "@pr-reviewer-bot/agents",
+  "name": "@pr-reviewer-bot/ai-connectors",
   "version": "1.0.0",
   "private": true,
-  "description": "PR Reviewer Bot Agents",
+  "description": "AI connectors for PR Reviewer Bot",
   "author": "Shuraj Shampang <shuraj.shampang@gmail.com>",
   "license": "UNLICENSED",
   "main": "dist/index.js",
@@ -17,13 +17,11 @@
     "test": "jest"
   },
   "dependencies": {
-    "@pr-reviewer-bot/ai-connectors": "workspace:*",
-    "axios": "^1.6.2",
-    "octokit": "^4.1.2"
+    "axios": "^1.6.0"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
     "@types/jest": "^29.5.0",
+    "@types/node": "^22.13.10",
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
     "typescript": "^4.9.4"
@@ -32,4 +30,4 @@
     "node": ">=20",
     "pnpm": ">=9"
   }
-}
+} 

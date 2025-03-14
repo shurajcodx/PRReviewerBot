@@ -78,29 +78,4 @@ export interface CodeIssue {
    * Additional metadata about the issue
    */
   metadata?: Record<string, any>;
-}
-
-export interface PullRequest {
-  id: string;
-  number: number;
-  title: string;
-  description: string;
-  branch: string;
-  head: {
-    sha: string;
-    ref: string;
-  };
-  files: FileChange[];
-}
-
-export interface FileChange {
-  filename: string;
-  status: string;
-  patch?: string;
-  content: string;
-}
-
-export interface GitProvider {
-  getPullRequest(repoUrl: string, branch: string): Promise<PullRequest>;
-  createReviewComment(repoUrl: string, prId: string, comment: string, file: string, line: number): Promise<void>;
 } 

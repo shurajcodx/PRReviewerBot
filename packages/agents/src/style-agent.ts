@@ -1,121 +1,192 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { execSync } from 'node:child_process';
-import { Agent } from '.';
-import { CodeIssue } from './types';
+import { BaseAgent } from './BaseAgent';
+import { CodeIssue, IssueType, IssueSeverity } from './types';
+import path from 'path';
 
-export class StyleAgent implements Agent {
-  name = 'Style Checker';
+/**
+ * Agent that checks code style compliance
+ */
+export class StyleAgent extends BaseAgent {
+  /**
+   * Get the name of the agent
+   */
+  get name(): string {
+    return 'Style';
+  }
   
+  /**
+   * Analyze a file for style issues
+   * @param filePath Path to the file
+   * @param content Content of the file
+   * @param repoDir Repository directory
+   * @returns Array of code issues
+   */
   async analyze(filePath: string, content: string, repoDir: string): Promise<CodeIssue[]> {
-    const issues: CodeIssue[] = [];
-    const ext = path.extname(filePath).toLowerCase();
-    
-    // Check if we should lint this file
-    if (!['.js', '.jsx', '.ts', '.tsx', '.css', '.scss', '.html'].includes(ext)) {
-      return issues;
+    // Skip empty files
+    if (!content.trim()) {
+      return [];
     }
     
-    try {
-      // Check for ESLint config
-      const hasEslint = fs.existsSync(path.join(repoDir, '.eslintrc')) || 
-                        fs.existsSync(path.join(repoDir, '.eslintrc.js')) ||
-                        fs.existsSync(path.join(repoDir, '.eslintrc.json'));
+    const issues: CodeIssue[] = [];
+    const relativePath = this.getRelativePath(filePath, repoDir);
+    const extension = path.extname(filePath).toLowerCase();
+    
+    // Check for common style issues based on file type
+    switch (extension) {
+      case '.js':
+      case '.jsx':
+      case '.ts':
+      case '.tsx':
+        issues.push(...this.checkJavaScriptStyle(content, filePath));
+        break;
+      case '.py':
+        issues.push(...this.checkPythonStyle(content, filePath));
+        break;
+      case '.java':
+        issues.push(...this.checkJavaStyle(content, filePath));
+        break;
+    }
+    
+    // Check for trailing whitespace and consistent line endings
+    issues.push(...this.checkWhitespace(content, filePath));
+    
+    return issues;
+  }
+  
+  /**
+   * Check JavaScript/TypeScript style
+   * @param content File content
+   * @param filePath File path
+   * @returns Array of code issues
+   */
+  private checkJavaScriptStyle(content: string, filePath: string): CodeIssue[] {
+    const issues: CodeIssue[] = [];
+    const lines = content.split('\n');
+    
+    // Check for console.log statements
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       
-      if (hasEslint && ['.js', '.jsx', '.ts', '.tsx'].includes(ext)) {
-        try {
-          // Run ESLint
-          const relativePath = path.relative(repoDir, filePath);
-          const result = execSync(`cd ${repoDir} && npx eslint --no-eslintrc --format json ${relativePath}`, 
-                                { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-          
-          const eslintResults = JSON.parse(result);
-          
-          for (const file of eslintResults) {
-            for (const message of file.messages) {
-              issues.push({
-                type: 'style',
-                message: `ESLint: ${message.message}`,
-                line: message.line,
-                column: message.column,
-                severity: this.mapEslintSeverity(message.severity)
-              });
-            }
-          }
-        } catch (error: any) {
-          // ESLint often exits with code 1 when it finds issues
-          if (error.stdout) {
-            try {
-              const eslintResults = JSON.parse(error.stdout);
-              
-              for (const file of eslintResults) {
-                for (const message of file.messages) {
-                  issues.push({
-                    type: 'style',
-                    message: `ESLint: ${message.message}`,
-                    line: message.line,
-                    column: message.column,
-                    severity: this.mapEslintSeverity(message.severity)
-                  });
-                }
-              }
-            } catch (parseError) {
-              issues.push({
-                type: 'style',
-                message: `Error parsing ESLint output: ${error.message}`,
-                severity: 'low'
-              });
-            }
-          } else {
-            issues.push({
-              type: 'style',
-              message: `ESLint error: ${error.message}`,
-              severity: 'low'
-            });
-          }
-        }
+      if (line.includes('console.log(')) {
+        issues.push(this.createIssue(
+          'Console statement found',
+          'Console statements should be removed in production code.',
+          IssueType.STYLE,
+          IssueSeverity.INFO,
+          filePath,
+          i + 1,
+          i + 1,
+          'Remove or comment out the console.log statement.'
+        ));
       }
       
-      // Check for Prettier config
-      const hasPrettier = fs.existsSync(path.join(repoDir, '.prettierrc')) || 
-                          fs.existsSync(path.join(repoDir, '.prettierrc.js')) ||
-                          fs.existsSync(path.join(repoDir, '.prettierrc.json'));
-      
-      if (hasPrettier) {
-        try {
-          // Run Prettier check
-          const relativePath = path.relative(repoDir, filePath);
-          execSync(`cd ${repoDir} && npx prettier --check ${relativePath}`, 
-                  { encoding: 'utf8', stdio: 'ignore' });
-        } catch (error: any) {
-          issues.push({
-            type: 'style',
-            message: 'Prettier: File is not formatted according to project standards',
-            severity: 'low'
-          });
-        }
+      // Check for very long lines
+      if (line.length > 100) {
+        issues.push(this.createIssue(
+          'Line too long',
+          'Lines should be limited to 100 characters for readability.',
+          IssueType.STYLE,
+          IssueSeverity.INFO,
+          filePath,
+          i + 1,
+          i + 1,
+          'Break the line into multiple lines.'
+        ));
       }
-    } catch (error: any) {
-      issues.push({
-        type: 'style',
-        message: `Style check error: ${error.message}`,
-        severity: 'low'
-      });
     }
     
     return issues;
   }
   
-  private mapEslintSeverity(eslintSeverity: number): 'low' | 'medium' | 'high' {
-    switch (eslintSeverity) {
-      case 0: // warn
-        return 'low';
-      case 1: // warning
-        return 'medium';
-      case 2: // error
-        return 'high';
-      default:
-        return 'medium';
+  /**
+   * Check Python style
+   * @param content File content
+   * @param filePath File path
+   * @returns Array of code issues
+   */
+  private checkPythonStyle(content: string, filePath: string): CodeIssue[] {
+    const issues: CodeIssue[] = [];
+    const lines = content.split('\n');
+    
+    // Check for print statements
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      if (line.includes('print(')) {
+        issues.push(this.createIssue(
+          'Print statement found',
+          'Print statements should be removed in production code.',
+          IssueType.STYLE,
+          IssueSeverity.INFO,
+          filePath,
+          i + 1,
+          i + 1,
+          'Remove or comment out the print statement.'
+        ));
+      }
     }
+    
+    return issues;
+  }
+  
+  /**
+   * Check Java style
+   * @param content File content
+   * @param filePath File path
+   * @returns Array of code issues
+   */
+  private checkJavaStyle(content: string, filePath: string): CodeIssue[] {
+    const issues: CodeIssue[] = [];
+    const lines = content.split('\n');
+    
+    // Check for System.out.println statements
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      if (line.includes('System.out.println') || line.includes('System.err.println')) {
+        issues.push(this.createIssue(
+          'System.out statement found',
+          'System.out statements should be replaced with proper logging.',
+          IssueType.STYLE,
+          IssueSeverity.INFO,
+          filePath,
+          i + 1,
+          i + 1,
+          'Replace with a logger statement.'
+        ));
+      }
+    }
+    
+    return issues;
+  }
+  
+  /**
+   * Check whitespace issues
+   * @param content File content
+   * @param filePath File path
+   * @returns Array of code issues
+   */
+  private checkWhitespace(content: string, filePath: string): CodeIssue[] {
+    const issues: CodeIssue[] = [];
+    const lines = content.split('\n');
+    
+    // Check for trailing whitespace
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      if (line.trimEnd() !== line) {
+        issues.push(this.createIssue(
+          'Trailing whitespace',
+          'Lines should not have trailing whitespace.',
+          IssueType.STYLE,
+          IssueSeverity.INFO,
+          filePath,
+          i + 1,
+          i + 1,
+          'Remove trailing whitespace.'
+        ));
+      }
+    }
+    
+    return issues;
   }
 } 

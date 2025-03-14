@@ -2,16 +2,31 @@
   "name": "@pr-reviewer-bot/cli",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "bin": {
+    "prreviewbot": "dist/index.js"
+  },
   "scripts": {
+    "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "dev": "ts-node src/index.ts",
+    "test": "jest"
   },
   "dependencies": {
     "@pr-reviewer-bot/agents": "workspace:*",
-    "commander": "^9.4.1"
+    "@pr-reviewer-bot/core": "workspace:*",
+    "@pr-reviewer-bot/ai-connectors": "workspace:*",
+    "@pr-reviewer-bot/output": "workspace:*",
+    "commander": "^9.4.1",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "fs-extra": "^10.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
+    "@types/fs-extra": "^9.0.13",
+    "@types/jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   }
