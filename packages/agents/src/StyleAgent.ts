@@ -1,7 +1,6 @@
 import { BaseAgent } from './BaseAgent';
 import { CodeIssue, IssueType, IssueSeverity } from '@pr-reviewer-bot/core';
 import path from 'path';
-import fs from 'fs-extra';
 
 /**
  * Agent that checks code style compliance
@@ -294,7 +293,7 @@ export class StyleAgent extends BaseAgent {
       } catch (error) {
         issues.push(this.createIssue(
           'Invalid JSON',
-          `The JSON file is not valid: ${error.message}`,
+          `The JSON file is not valid: ${error}`,
           IssueType.STYLE,
           IssueSeverity.ERROR,
           filePath,

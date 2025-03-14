@@ -23,7 +23,7 @@ build.cli: build.core build.agent build.ai-connectors build.output
 	pnpm --filter @pr-reviewer-bot/cli build
 
 # Build all packages
-build: build.core build.agent build.ai-connectors build.output build.cli
+build: build.core build.ai-connectors build.agent build.output build.cli
 	@printf "\033[0;32m>>> Build completed\033[0m\n"
 
 # Install dependencies

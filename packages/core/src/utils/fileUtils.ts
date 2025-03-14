@@ -59,7 +59,8 @@ export async function isTextFile(filePath: string): Promise<boolean> {
     
     return true;
   } catch (error) {
-    console.warn(`Warning: Could not determine if ${filePath} is a text file: ${error.message}`);
+    console.warn(`Warning: Could not determine if ${filePath} is a text file: ${error}`);
+
     return false;
   }
 }

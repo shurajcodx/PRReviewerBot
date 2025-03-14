@@ -49,4 +49,5 @@ export interface OutputHandlerOptions {
   /**
    * Group issues by severity
    */
- 
+  groupBySeverity?: boolean;
+}

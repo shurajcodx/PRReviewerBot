@@ -69,7 +69,7 @@ export class GitService {
     try {
       return await fs.readFile(filePath, 'utf-8');
     } catch (error) {
-      throw new Error(`Failed to read file ${filePath}: ${error.message}`);
+      throw new Error(`Failed to read file ${filePath}: ${error}`);
     }
   }
 
@@ -81,7 +81,8 @@ export class GitService {
     try {
       // Try to get the default branch from remote
       const remotes = await this.git.remote(['show', 'origin']);
-      const match = remotes.match(/HEAD branch: ([^\n]+)/);
+      const match = remotes?.match(/HEAD branch: ([^\n]+)/);
+
       if (match && match[1]) {
         return match[1];
       }
@@ -97,7 +98,8 @@ export class GitService {
       // Default to main if we can't determine
       return 'main';
     } catch (error) {
-      console.warn(`Warning: Could not determine default branch: ${error.message}`);
+      console.warn(`Warning: Could not determine default branch: ${error}`);
+
       return 'main'; // Default fallback
     }
   }
@@ -118,7 +120,8 @@ export class GitService {
       }
       return url;
     } catch (error) {
-      console.warn(`Warning: Could not add auth to URL: ${error.message}`);
+      console.warn(`Warning: Could not add auth to URL: ${error}`);
+
       return url;
     }
   }

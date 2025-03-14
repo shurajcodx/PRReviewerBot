@@ -15,7 +15,8 @@ async function main() {
         endLine: 15
       },
       suggestedFix: 'Consider using a safer alternative like JSON.parse() or a dedicated parser library.',
-      agent: 'security-agent'
+      agent: 'security-agent',
+      id: ''
     },
     {
       title: 'Unused variable',
@@ -28,7 +29,8 @@ async function main() {
         endLine: 42
       },
       suggestedFix: 'Remove the unused variable or use it.',
-      agent: 'style-agent'
+      agent: 'style-agent',
+      id: ''
     },
     {
       title: 'Inefficient algorithm',
@@ -41,7 +43,8 @@ async function main() {
         endLine: 35
       },
       suggestedFix: 'Consider using a more efficient sorting algorithm like quicksort or mergesort.',
-      agent: 'ai-agent'
+      agent: 'ai-agent',
+      id: ''
     },
     {
       title: 'Potential null reference',
@@ -54,7 +57,8 @@ async function main() {
         endLine: 78
       },
       suggestedFix: 'Add a null check before accessing the property.',
-      agent: 'ai-agent'
+      agent: 'ai-agent',
+      id: ''
     }
   ];
 

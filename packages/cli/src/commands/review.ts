@@ -30,7 +30,7 @@ export function reviewCommand(): Command {
         }
         
         // Parse agents option
-        const agentsList = options.agents.toLowerCase().split(',').map(a => a.trim());
+        const agentsList = options.agents.toLowerCase().split(',').map((a: string) => a.trim());
         const useAllAgents = agentsList.includes('all');
         
         // Initialize spinner

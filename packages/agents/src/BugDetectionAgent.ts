@@ -447,7 +447,8 @@ If no bugs are found, return an empty array: []
         );
       });
     } catch (error) {
-      console.warn(`Warning: Could not parse AI response: ${error.message}`);
+      console.warn(`Warning: Could not parse AI response: ${error}`);
+
       return [];
     }
   }
