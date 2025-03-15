@@ -31,16 +31,6 @@ install:
 	@printf "\033[0;32m>>> Installing dependencies\033[0m\n"
 	pnpm -r install
 
-# Create package structure
-init-structure:
-	@printf "\033[0;32m>>> Creating package structure\033[0m\n"
-	mkdir -p packages/cli/src
-	mkdir -p packages/core/src
-	mkdir -p packages/agents/src
-	mkdir -p packages/ai-connectors/src
-	mkdir -p packages/output/src
-	@printf "\033[0;32m>>> Package structure created\033[0m\n"
-
 # Target to run the CLI
 run-cli:
 	@printf "\033[0;32m>>> Running the CLI...\033[0m\n"
