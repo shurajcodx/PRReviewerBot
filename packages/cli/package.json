@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "bin": {
-    "prreviewbot": "dist/index.js"
+    "prreviewbot": "dist/index.js",
+    "prr": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
