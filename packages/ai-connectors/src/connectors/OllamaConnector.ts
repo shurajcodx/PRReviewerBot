@@ -32,7 +32,7 @@ export class OllamaConnector extends BaseAIConnector {
   ) {
     super(apiKey);
     this.baseUrl = options.baseUrl || 'http://localhost:11434';
-    this.model = options.model || 'llama2';
+    this.model = options.model || 'llama3.2';
   }
 
   /**
