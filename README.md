@@ -87,17 +87,14 @@ make format-check
 
    ```bash
    # Pull a general-purpose model
-   ollama pull llama2
-
-   # Or pull a code-specific model
-   ollama pull codellama
+   ollama pull llama3.2
    ```
 
 3. **Configure the Bot**:
 
    ```bash
    # Use Ollama with a specific model
-   prreviewbot review --ai-model ollama --ai-options '{"model":"codellama","baseUrl":"http://localhost:11434"}' [options]
+   prreviewbot review --ai-model ollama --ai-options '{"model":"llama3.2","baseUrl":"http://localhost:11434"}' [options]
    ```
 
 ### GitHub Integration (Optional)
