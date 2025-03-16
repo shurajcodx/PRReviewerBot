@@ -3,7 +3,6 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { GitService, RepoService } from '@pr-reviewer-bot/core';
 import {
-  AIAgent,
   StyleAgent,
   SecurityAgent,
   BugDetectionAgent,
@@ -22,7 +21,8 @@ export function reviewCommand(): Command {
     .requiredOption('-b, --branch <branch>', 'Branch name to review')
     .option('-o, --output-dir <directory>', 'Output directory for cloned repo', './temp-repo')
     .option('-a, --ai-key <key>', 'AI API key (or set AI_API_KEY env var)')
-    .option('-m, --ai-model <model>', 'AI model to use (claude, openai)', 'claude')
+    .option('-m, --ai-model <model>', 'AI model to use (claude, openai, ollama)', 'claude')
+    .option('--ai-options <json>', 'Additional options for the AI model as JSON string')
     .option('-f, --output-format <format>', 'Output format (file, pr-comment)', 'file')
     .option(
       '--output-file <file>',
@@ -37,14 +37,37 @@ export function reviewCommand(): Command {
     .action(async options => {
       try {
         // Get AI API key
-        const aiApiKey = options.aiKey || process.env.AI_API_KEY;
-        if (!aiApiKey) {
+        const aiApiKey = options.aiKey || process.env.AI_API_KEY || '';
+
+        // Check if API key is required for the selected model
+        if (!aiApiKey && options.aiModel !== 'ollama') {
           console.error(
             chalk.red(
-              'AI API key is required. Provide it with --ai-key or set AI_API_KEY env var.',
+              'AI API key is required for commercial models. Provide it with --ai-key or set AI_API_KEY env var.',
             ),
           );
           process.exit(1);
+        }
+
+        // Parse AI options
+        let aiOptions: Record<string, string> = {};
+        if (options.aiOptions) {
+          try {
+            aiOptions = JSON.parse(options.aiOptions);
+          } catch (error) {
+            console.error(chalk.red('Invalid AI options JSON format.'));
+            process.exit(1);
+          }
+        }
+
+        // For Ollama, check environment variables for options
+        if (options.aiModel === 'ollama') {
+          if (!aiOptions.model && process.env.OLLAMA_MODEL) {
+            aiOptions.model = process.env.OLLAMA_MODEL;
+          }
+          if (!aiOptions.baseUrl && process.env.OLLAMA_BASE_URL) {
+            aiOptions.baseUrl = process.env.OLLAMA_BASE_URL;
+          }
         }
 
         // Parse agents option
@@ -60,7 +83,11 @@ export function reviewCommand(): Command {
         try {
           // Create AI connector
           spinner.text = 'Creating AI connector';
-          const aiConnector = AIConnectorFactory.createConnector(options.aiModel, aiApiKey);
+          const aiConnector = AIConnectorFactory.createConnector(
+            options.aiModel,
+            aiApiKey,
+            aiOptions,
+          );
 
           // Initialize agents
           spinner.text = 'Initializing agents';

@@ -39,7 +39,6 @@ export class BugDetectionAgent extends BaseAgent {
     }
 
     const issues: CodeIssue[] = [];
-    const relativePath = this.getRelativePath(filePath, repoDir);
     const extension = path.extname(filePath).toLowerCase();
 
     // Check for common bugs based on file type
@@ -96,7 +95,7 @@ export class BugDetectionAgent extends BaseAgent {
       if (isComment && line.length > 3) {
         // Check if the comment contains code-like patterns
         const containsCode =
-          /[{};=><\[\]()]/.test(line) ||
+          /[{};=><\\[\]()]/.test(line) ||
           /\bif\b|\bfor\b|\bwhile\b|\bfunction\b|\bclass\b|\bdef\b|\breturn\b/.test(line);
 
         if (containsCode) {

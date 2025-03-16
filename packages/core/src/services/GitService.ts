@@ -1,6 +1,5 @@
 import simpleGit, { SimpleGit } from 'simple-git';
 import fs from 'fs-extra';
-import path from 'path';
 
 /**
  * Service for Git operations

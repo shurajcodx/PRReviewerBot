@@ -1,7 +1,6 @@
 import { BaseAgent } from './BaseAgent';
 import { CodeIssue, IssueType, IssueSeverity, getFileLanguage } from '@pr-reviewer-bot/core';
 import { AIConnector } from '@pr-reviewer-bot/ai-connectors';
-import path from 'path';
 
 /**
  * Agent that uses AI to analyze code for general issues

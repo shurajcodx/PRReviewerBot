@@ -39,7 +39,6 @@ export class SecurityAgent extends BaseAgent {
     }
 
     const issues: CodeIssue[] = [];
-    const relativePath = this.getRelativePath(filePath, repoDir);
     const extension = path.extname(filePath).toLowerCase();
 
     // Check for common security issues based on file type
@@ -94,7 +93,7 @@ export class SecurityAgent extends BaseAgent {
         name: 'AWS Access Key',
       },
       {
-        pattern: /(?:aws[_-]?secret[_-]?access[_-]?key).*?[=:]\s*['"]([A-Za-z0-9\/+=]{40})['"]/i,
+        pattern: /(?:aws[_-]?secret[_-]?access[_-]?key).*?[=:]\s*['"]([A-Za-z0-9\\/+=]{40})['"]/i,
         name: 'AWS Secret Key',
       },
     ];

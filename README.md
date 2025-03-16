@@ -8,13 +8,14 @@ An AI-powered code review assistant that automatically analyzes pull requests an
 - **Multiple Analysis Types**: Detects security vulnerabilities, style issues, bugs, and optimization opportunities
 - **AI-Powered Insights**: Uses AI models to provide intelligent code feedback
 - **Flexible Output**: Generates reports as Markdown files or GitHub PR comments
+- **Multiple AI Options**: Supports commercial APIs (OpenAI, Claude) and self-hosted models (Ollama)
 
 ## Project Structure
 
 The project is organized as a monorepo with the following packages:
 
 - **agents**: Code analysis agents that detect different types of issues
-- **ai-connectors**: Connectors for various AI services (OpenAI, Claude)
+- **ai-connectors**: Connectors for various AI services (OpenAI, Claude, Ollama)
 - **output**: Formatters for delivering review results (file output, GitHub PR comments)
 - **core**: Core functionality and shared utilities
 - **cli**: Command-line interface for running the bot
@@ -85,6 +86,38 @@ make format-check
    # AI_MODEL=claude
    ```
 
+### Using Self-Hosted Ollama (Free)
+
+1. **Install Ollama**:
+
+   - Download and install from [ollama.ai](https://ollama.ai)
+   - Start the Ollama server
+
+2. **Pull a Model**:
+
+   ```bash
+   # Pull a general-purpose model
+   ollama pull llama2
+
+   # Or pull a code-specific model
+   ollama pull codellama
+   ```
+
+3. **Configure the Bot**:
+
+   ```bash
+   # Use Ollama with a specific model
+   prreviewbot review --ai-model ollama --ai-options '{"model":"codellama","baseUrl":"http://localhost:11434"}' [options]
+   ```
+
+   Alternatively, add to your `.env` file:
+
+   ```
+   AI_MODEL=ollama
+   OLLAMA_MODEL=codellama
+   OLLAMA_BASE_URL=http://localhost:11434
+   ```
+
 ### GitHub Integration (Optional)
 
 To post review comments directly on GitHub PRs:
@@ -119,6 +152,9 @@ prreviewbot review --url https://github.com/owner/repo --branch feature-branch
 # Review with specific AI model
 prreviewbot review --url https://github.com/owner/repo --branch feature-branch --ai-model openai --ai-key your-api-key
 
+# Review with Ollama (free, self-hosted)
+prreviewbot review --url https://github.com/owner/repo --branch feature-branch --ai-model ollama
+
 # Output results to a specific file
 prreviewbot review --url https://github.com/owner/repo --branch feature-branch --output-format file --output-file ./my-review.md
 ```
@@ -134,7 +170,8 @@ Options:
   -b, --branch <branch>         Branch name to review
   -o, --output-dir <directory>  Output directory for cloned repo (default: "./temp-repo")
   -a, --ai-key <key>            AI API key (or set AI_API_KEY env var)
-  -m, --ai-model <model>        AI model to use (claude, openai) (default: "claude")
+  -m, --ai-model <model>        AI model to use (claude, openai, ollama) (default: "claude")
+  --ai-options <json>           Additional options for the AI model as JSON string
   -f, --output-format <format>  Output format (file, pr-comment) (default: "file")
   --output-file <file>          Output file path (when using file format) (default: "./review-results.md")
   --agents <agents>             Comma-separated list of agents to use (all, security, style, bug, optimization) (default: "all")
@@ -167,6 +204,19 @@ This will:
 
 1. Clone the repository
 2. Analyze the code using only security and optimization agents
+3. Generate a report in `review-results.md`
+
+### Example 3: Review with Ollama (Free, Self-Hosted)
+
+```bash
+# Review using Ollama with CodeLlama model
+prreviewbot review --url https://github.com/myorg/myrepo --branch feature-branch --ai-model ollama --ai-options '{"model":"codellama"}'
+```
+
+This will:
+
+1. Clone the repository
+2. Analyze the code using the local Ollama server with CodeLlama
 3. Generate a report in `review-results.md`
 
 ## Using as a GitHub Action
@@ -223,6 +273,12 @@ jobs:
 
 - **Authentication Errors**: Verify your API keys are correct
 - **Rate Limiting**: Commercial APIs have rate limits; check your usage quotas
+
+### Ollama Issues
+
+- **Connection Errors**: Make sure Ollama is running (`ps aux | grep ollama`)
+- **Model Not Found**: Ensure you've pulled the model (`ollama list`)
+- **Slow Responses**: Ollama performance depends on your hardware; consider using a smaller model
 
 ### GitHub Integration Issues
 
