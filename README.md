@@ -74,16 +74,6 @@ make format-check
    AI_API_KEY=your-claude-api-key prreviewbot review [options]
    ```
 
-   Alternatively, you can create a `.env` file in the root directory:
-
-   ```
-   # For OpenAI
-   AI_API_KEY=your-openai-api-key
-   AI_MODEL=openai
-
-   # For Claude
-   # AI_API_KEY=your-claude-api-key
-   # AI_MODEL=claude
    ```
 
 ### Using Self-Hosted Ollama (Free)
