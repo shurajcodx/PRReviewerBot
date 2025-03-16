@@ -31,13 +31,13 @@ export class OutputHandlerFactory {
    * @returns Output handler
    */
   static createOutputHandler(
-    type: 'file' | 'github-pr',
+    type: 'file' | 'pr-comment',
     options: OutputHandlerOptions,
   ): OutputHandler {
     switch (type) {
       case 'file':
         return this.createFileOutputHandler(options);
-      case 'github-pr':
+      case 'pr-comment':
         return this.createGitHubPROutputHandler(options);
       default:
         throw new Error(`Unsupported output handler type: ${type}`);
