@@ -23,7 +23,7 @@ The project is organized as a monorepo with the following packages:
 
 ```bash
 # Clone the repository
-git clone git@github.com:shurajcodx/PRReviewerBot.git
+git clone https://github.com/shurajcodx/PRReviewerBot.git
 cd PRReviewerBot
 
 # Install dependencies
@@ -33,19 +33,64 @@ make install
 make build
 ```
 
+## Development
+
+### Code Style and Linting
+
+The project uses ESLint and Prettier to maintain code quality and consistent style:
+
+```bash
+# Run linting
+make lint
+
+# Fix linting issues
+make lint-fix
+
+# Format code
+make format
+
+# Check code formatting
+make format-check
+```
+
 ## Setup
 
 ### Using Commercial AI Services
 
 1. **Get API Keys**:
+
    - OpenAI: Sign up at [platform.openai.com](https://platform.openai.com)
    - Claude: Sign up at [anthropic.com](https://console.anthropic.com)
 
-### GitHub / GitLab Integration (Optional)
+2. **Configure the Bot**:
+   You can set environment variables when running the CLI:
+
+   ```bash
+   # For OpenAI
+   AI_API_KEY=your-openai-api-key prreviewbot review --ai-model openai [options]
+
+   # For Claude (default)
+   AI_API_KEY=your-claude-api-key prreviewbot review [options]
+   ```
+
+   Alternatively, you can create a `.env` file in the root directory:
+
+   ```
+   # For OpenAI
+   AI_API_KEY=your-openai-api-key
+   AI_MODEL=openai
+
+   # For Claude
+   # AI_API_KEY=your-claude-api-key
+   # AI_MODEL=claude
+   ```
+
+### GitHub Integration (Optional)
 
 To post review comments directly on GitHub PRs:
 
 1. **Create a GitHub Personal Access Token**:
+
    - Go to GitHub Settings → Developer Settings → Personal Access Tokens
    - Create a token with `repo` scope
 
@@ -53,6 +98,12 @@ To post review comments directly on GitHub PRs:
 
    ```bash
    prreviewbot review --url https://github.com/owner/repo --branch branch-name --token your-github-token
+   ```
+
+   Or add to your `.env` file:
+
+   ```
+   GIT_TOKEN=your-github-token
    ```
 
 ## Usage
@@ -140,7 +191,7 @@ jobs:
         run: make install
       - name: Build project
         run: make build
-      
+
       - name: Run PR Review
         run: prreviewbot review --url https://github.com/${{ github.repository }} --branch ${{ github.head_ref }} --output-format pr-comment
         env:

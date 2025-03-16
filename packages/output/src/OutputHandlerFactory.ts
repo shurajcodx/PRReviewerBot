@@ -14,7 +14,7 @@ export class OutputHandlerFactory {
   static createFileOutputHandler(options: OutputHandlerOptions): OutputHandler {
     return new FileOutputHandler(options);
   }
-  
+
   /**
    * Create a GitHub PR output handler
    * @param options Output handler options
@@ -23,14 +23,17 @@ export class OutputHandlerFactory {
   static createGitHubPROutputHandler(options: OutputHandlerOptions): OutputHandler {
     return new GitHubPROutputHandler(options);
   }
-  
+
   /**
    * Create an output handler based on the type
    * @param type Type of output handler
    * @param options Output handler options
    * @returns Output handler
    */
-  static createOutputHandler(type: 'file' | 'github-pr', options: OutputHandlerOptions): OutputHandler {
+  static createOutputHandler(
+    type: 'file' | 'github-pr',
+    options: OutputHandlerOptions,
+  ): OutputHandler {
     switch (type) {
       case 'file':
         return this.createFileOutputHandler(options);
@@ -40,4 +43,4 @@ export class OutputHandlerFactory {
         throw new Error(`Unsupported output handler type: ${type}`);
     }
   }
-} 
+}

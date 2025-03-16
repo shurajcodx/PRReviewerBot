@@ -8,4 +8,4 @@ export interface AIConnector {
    * @returns Promise that resolves to the AI's response
    */
   generateResponse(prompt: string): Promise<string>;
-} 
+}

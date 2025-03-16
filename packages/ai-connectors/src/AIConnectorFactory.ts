@@ -22,4 +22,4 @@ export class AIConnectorFactory {
         throw new Error(`Unsupported model: ${model}`);
     }
   }
-} 
+}

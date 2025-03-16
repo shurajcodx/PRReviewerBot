@@ -2,13 +2,19 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
 import { GitService, RepoService } from '@pr-reviewer-bot/core';
-import { AIAgent, StyleAgent, SecurityAgent, BugDetectionAgent, OptimizationAgent } from '@pr-reviewer-bot/agents';
+import {
+  AIAgent,
+  StyleAgent,
+  SecurityAgent,
+  BugDetectionAgent,
+  OptimizationAgent,
+} from '@pr-reviewer-bot/agents';
 import { AIConnectorFactory } from '@pr-reviewer-bot/ai-connectors';
 import { OutputHandlerFactory } from '@pr-reviewer-bot/output';
 
 export function reviewCommand(): Command {
   const command = new Command('review');
-  
+
   command
     .description('Review a pull request')
     .requiredOption('-u, --url <url>', 'Git repository URL')
@@ -18,105 +24,117 @@ export function reviewCommand(): Command {
     .option('-a, --ai-key <key>', 'AI API key (or set AI_API_KEY env var)')
     .option('-m, --ai-model <model>', 'AI model to use (claude, openai)', 'claude')
     .option('-f, --output-format <format>', 'Output format (file, pr-comment)', 'file')
-    .option('--output-file <file>', 'Output file path (when using file format)', './review-results.md')
-    .option('--agents <agents>', 'Comma-separated list of agents to use (all, security, style, bug, optimization)', 'all')
-    .action(async (options) => {
+    .option(
+      '--output-file <file>',
+      'Output file path (when using file format)',
+      './review-results.md',
+    )
+    .option(
+      '--agents <agents>',
+      'Comma-separated list of agents to use (all, security, style, bug, optimization)',
+      'all',
+    )
+    .action(async options => {
       try {
         // Get AI API key
         const aiApiKey = options.aiKey || process.env.AI_API_KEY;
         if (!aiApiKey) {
-          console.error(chalk.red('AI API key is required. Provide it with --ai-key or set AI_API_KEY env var.'));
+          console.error(
+            chalk.red(
+              'AI API key is required. Provide it with --ai-key or set AI_API_KEY env var.',
+            ),
+          );
           process.exit(1);
         }
-        
+
         // Parse agents option
-        const agentsList = options.agents.toLowerCase().split(',').map((a: string) => a.trim());
+        const agentsList = options.agents
+          .toLowerCase()
+          .split(',')
+          .map((a: string) => a.trim());
         const useAllAgents = agentsList.includes('all');
-        
+
         // Initialize spinner
         const spinner = ora('Initializing PR review').start();
-        
+
         try {
           // Create AI connector
           spinner.text = 'Creating AI connector';
           const aiConnector = AIConnectorFactory.createConnector(options.aiModel, aiApiKey);
-          
+
           // Initialize agents
           spinner.text = 'Initializing agents';
           const agents = [];
-          
+
           if (useAllAgents || agentsList.includes('security')) {
             agents.push(new SecurityAgent(aiConnector));
           }
-          
+
           if (useAllAgents || agentsList.includes('style')) {
             agents.push(new StyleAgent());
           }
-          
+
           if (useAllAgents || agentsList.includes('bug')) {
             agents.push(new BugDetectionAgent(aiConnector));
           }
-          
+
           if (useAllAgents || agentsList.includes('optimization')) {
             agents.push(new OptimizationAgent(aiConnector));
           }
-          
+
           // Create git service
           spinner.text = 'Initializing Git service';
           const gitService = new GitService(options.token);
-          
+
           // Create repo service
           spinner.text = 'Initializing repository service';
           const repoService = new RepoService(gitService, options.outputDir);
-          
+
           // Create output handler
           spinner.text = 'Initializing output handler';
-          const outputHandler = OutputHandlerFactory.createOutputHandler(
-            options.outputFormat,
-            {
-              filePath: options.outputFile,
-              gitToken: options.token,
-              repoUrl: options.url
-            }
-          );
-          
+          const outputHandler = OutputHandlerFactory.createOutputHandler(options.outputFormat, {
+            filePath: options.outputFile,
+            gitToken: options.token,
+            repoUrl: options.url,
+          });
+
           // Clone repository
           spinner.text = 'Cloning repository';
           await repoService.cloneRepository(options.url);
-          
+
           // Checkout branch
           spinner.text = 'Checking out branch';
           await repoService.checkoutBranch(options.branch);
-          
+
           // Get changed files
           spinner.text = 'Getting changed files';
           const changedFiles = await repoService.getChangedFiles();
-          
+
           // Run analysis with each agent
           spinner.text = 'Analyzing code';
           const allIssues = [];
-          
+
           for (const agent of agents) {
             spinner.text = `Running ${agent.name} analysis`;
-            
+
             for (const file of changedFiles) {
               const fileContent = await repoService.getFileContent(file);
               const issues = await agent.analyze(file, fileContent, options.outputDir);
               allIssues.push(...issues);
             }
           }
-          
+
           // Output results
           spinner.text = 'Generating output';
           await outputHandler.handleOutput(allIssues);
-          
+
           // Clean up
           spinner.text = 'Cleaning up';
           await repoService.cleanup();
-          
+
           spinner.succeed(chalk.green('PR review completed successfully!'));
           console.log(`Found ${allIssues.length} issues.`);
-          
+
           if (options.outputFormat === 'file') {
             console.log(`Results saved to ${options.outputFile}`);
           }
@@ -131,4 +149,4 @@ export function reviewCommand(): Command {
     });
 
   return command;
-} 
+}

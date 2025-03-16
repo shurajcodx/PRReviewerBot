@@ -33,7 +33,7 @@ export abstract class BaseAIConnector implements AIConnector {
   protected async withRetry<T>(
     fn: () => Promise<T>,
     retries: number = this.maxRetries,
-    delay: number = this.retryDelay
+    delay: number = this.retryDelay,
   ): Promise<T> {
     try {
       return await fn();
@@ -43,10 +43,10 @@ export abstract class BaseAIConnector implements AIConnector {
       }
 
       console.warn(`Request failed, retrying in ${delay}ms... (${retries} retries left)`);
-      
+
       // Wait for the specified delay
       await new Promise(resolve => setTimeout(resolve, delay));
-      
+
       // Retry with exponential backoff
       return this.withRetry(fn, retries - 1, delay * 2);
     }
@@ -67,4 +67,4 @@ export abstract class BaseAIConnector implements AIConnector {
   setRetryDelay(retryDelay: number): void {
     this.retryDelay = retryDelay;
   }
-} 
+}

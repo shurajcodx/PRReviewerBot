@@ -20,32 +20,32 @@ export interface OutputHandlerOptions {
    * File path for file output
    */
   filePath?: string;
-  
+
   /**
    * Git repository URL
    */
   repoUrl?: string;
-  
+
   /**
    * Git access token
    */
   gitToken?: string;
-  
+
   /**
    * Pull request number
    */
   prNumber?: number;
-  
+
   /**
    * Group issues by file
    */
   groupByFile?: boolean;
-  
+
   /**
    * Group issues by type
    */
   groupByType?: boolean;
-  
+
   /**
    * Group issues by severity
    */

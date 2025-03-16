@@ -9,4 +9,4 @@ export { ClaudeConnector } from './connectors/ClaudeConnector';
 export { OpenAIConnector } from './connectors/OpenAIConnector';
 
 // Export factory
-export { AIConnectorFactory } from './AIConnectorFactory'; 
+export { AIConnectorFactory } from './AIConnectorFactory';

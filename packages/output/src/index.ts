@@ -9,4 +9,4 @@ export { FileOutputHandler } from './handlers/FileOutputHandler';
 export { GitHubPROutputHandler } from './handlers/GitHubPROutputHandler';
 
 // Export factory
-export { OutputHandlerFactory } from './OutputHandlerFactory'; 
+export { OutputHandlerFactory } from './OutputHandlerFactory';

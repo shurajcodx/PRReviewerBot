@@ -8,7 +8,7 @@ import path from 'path';
  */
 export class AIAgent extends BaseAgent {
   private aiConnector: AIConnector;
-  
+
   /**
    * Create a new AIAgent
    * @param aiConnector AI connector
@@ -17,14 +17,14 @@ export class AIAgent extends BaseAgent {
     super();
     this.aiConnector = aiConnector;
   }
-  
+
   /**
    * Get the name of the agent
    */
   get name(): string {
     return 'AI';
   }
-  
+
   /**
    * Analyze a file for issues
    * @param filePath Path to the file
@@ -37,23 +37,23 @@ export class AIAgent extends BaseAgent {
     if (!content.trim()) {
       return [];
     }
-    
+
     // Get the language of the file
     const language = getFileLanguage(filePath) || 'Unknown';
-    
+
     // Get the relative path
     const relativePath = this.getRelativePath(filePath, repoDir);
-    
+
     // Create the prompt
     const prompt = this.createPrompt(content, language, relativePath);
-    
+
     // Send the prompt to the AI
     const response = await this.aiConnector.generateResponse(prompt);
-    
+
     // Parse the response
     return this.parseResponse(response, filePath);
   }
-  
+
   /**
    * Create a prompt for the AI
    * @param content File content
@@ -102,7 +102,7 @@ ${content}
 If no issues are found, return an empty array: []
 `;
   }
-  
+
   /**
    * Parse the AI response into code issues
    * @param response AI response
@@ -116,10 +116,10 @@ If no issues are found, return an empty array: []
       if (!jsonMatch) {
         return [];
       }
-      
+
       const jsonStr = jsonMatch[0];
       const issues = JSON.parse(jsonStr);
-      
+
       // Convert to CodeIssue format
       return issues.map((issue: any) => {
         // Map severity
@@ -140,7 +140,7 @@ If no issues are found, return an empty array: []
           default:
             severity = IssueSeverity.INFO;
         }
-        
+
         // Map type
         let type: IssueType;
         switch (issue.type?.toLowerCase()) {
@@ -159,7 +159,7 @@ If no issues are found, return an empty array: []
           default:
             type = IssueType.OTHER;
         }
-        
+
         return this.createIssue(
           issue.title,
           issue.description,
@@ -168,7 +168,7 @@ If no issues are found, return an empty array: []
           filePath,
           issue.lineStart,
           issue.lineEnd,
-          issue.suggestedFix
+          issue.suggestedFix,
         );
       });
     } catch (error) {
@@ -176,4 +176,4 @@ If no issues are found, return an empty array: []
       return [];
     }
   }
-} 
+}

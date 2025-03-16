@@ -8,7 +8,7 @@ export class ClaudeConnector extends BaseAIConnector {
   private apiUrl: string = 'https://api.anthropic.com/v1/messages';
   private model: string;
   private maxTokens: number = 4000;
-  
+
   /**
    * Create a new Claude connector
    * @param apiKey API key for Claude
@@ -18,7 +18,7 @@ export class ClaudeConnector extends BaseAIConnector {
     super(apiKey);
     this.model = model;
   }
-  
+
   /**
    * Generate a response from Claude
    * @param prompt Prompt to send to Claude
@@ -35,37 +35,41 @@ export class ClaudeConnector extends BaseAIConnector {
             messages: [
               {
                 role: 'user',
-                content: prompt
-              }
-            ]
+                content: prompt,
+              },
+            ],
           },
           {
             headers: {
               'Content-Type': 'application/json',
               'x-api-key': this.apiKey,
-              'anthropic-version': '2023-06-01'
-            }
-          }
+              'anthropic-version': '2023-06-01',
+            },
+          },
         );
-        
+
         return response.data.content[0].text;
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           const status = error.response.status;
           const data = error.response.data;
-          
+
           if (status === 429) {
-            throw new Error(`Claude API rate limit exceeded: ${data.error?.message || 'Unknown error'}`);
+            throw new Error(
+              `Claude API rate limit exceeded: ${data.error?.message || 'Unknown error'}`,
+            );
           } else {
-            throw new Error(`Claude API error (${status}): ${data.error?.message || 'Unknown error'}`);
+            throw new Error(
+              `Claude API error (${status}): ${data.error?.message || 'Unknown error'}`,
+            );
           }
         }
-        
+
         throw error;
       }
     });
   }
-  
+
   /**
    * Set the maximum number of tokens
    * @param maxTokens Maximum number of tokens
@@ -75,7 +79,7 @@ export class ClaudeConnector extends BaseAIConnector {
     this.maxTokens = maxTokens;
     return this;
   }
-  
+
   /**
    * Set the model
    * @param model Model to use
@@ -85,4 +89,4 @@ export class ClaudeConnector extends BaseAIConnector {
     this.model = model;
     return this;
   }
-} 
+}

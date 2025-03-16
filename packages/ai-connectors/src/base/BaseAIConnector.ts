@@ -51,36 +51,40 @@ export abstract class BaseAIConnector implements AIConnector {
    */
   protected async withRetry<T>(fn: () => Promise<T>): Promise<T> {
     let lastError: Error | null = null;
-    
+
     for (let attempt = 0; attempt < this.maxRetries; attempt++) {
       try {
         return await fn();
       } catch (error) {
         lastError = error as Error;
-        
+
         // Check if it's a rate limit error (status code 429)
         if (axios.isAxiosError(error) && (error as AxiosError).response?.status === 429) {
-          console.warn(`Rate limit exceeded, retrying in ${this.retryDelay}ms (attempt ${attempt + 1}/${this.maxRetries})`);
+          console.warn(
+            `Rate limit exceeded, retrying in ${this.retryDelay}ms (attempt ${attempt + 1}/${this.maxRetries})`,
+          );
           await this.delay(this.retryDelay * (attempt + 1)); // Exponential backoff
           continue;
         }
-        
+
         // For other errors, only retry if we have attempts left
         if (attempt < this.maxRetries - 1) {
-          console.warn(`Error occurred, retrying in ${this.retryDelay}ms (attempt ${attempt + 1}/${this.maxRetries}): ${error}`);
+          console.warn(
+            `Error occurred, retrying in ${this.retryDelay}ms (attempt ${attempt + 1}/${this.maxRetries}): ${error}`,
+          );
           await this.delay(this.retryDelay);
           continue;
         }
-        
+
         // If we've exhausted all retries, throw the error
         throw error;
       }
     }
-    
+
     // This should never happen, but TypeScript requires it
     throw lastError || new Error('Unknown error occurred during retry');
   }
-  
+
   /**
    * Delay execution for a specified time
    * @param ms Milliseconds to delay
@@ -89,4 +93,4 @@ export abstract class BaseAIConnector implements AIConnector {
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-} 
+}

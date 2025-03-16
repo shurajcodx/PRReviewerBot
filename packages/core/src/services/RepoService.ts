@@ -27,7 +27,7 @@ export class RepoService {
   async cloneRepository(repoUrl: string): Promise<void> {
     // Clean up any existing directory
     await this.cleanup();
-    
+
     // Clone the repository
     await this.gitService.cloneRepository(repoUrl, this.repoDir);
     this.isCloned = true;
@@ -41,7 +41,7 @@ export class RepoService {
     if (!this.isCloned) {
       throw new Error('Repository not cloned yet');
     }
-    
+
     await this.gitService.checkoutBranch(branchName);
   }
 
@@ -53,9 +53,9 @@ export class RepoService {
     if (!this.isCloned) {
       throw new Error('Repository not cloned yet');
     }
-    
+
     const changedFiles = await this.gitService.getChangedFiles();
-    
+
     // Convert to absolute paths
     return changedFiles.map(file => path.join(this.repoDir, file));
   }
@@ -69,7 +69,7 @@ export class RepoService {
     if (!this.isCloned) {
       throw new Error('Repository not cloned yet');
     }
-    
+
     return await this.gitService.getFileContent(filePath);
   }
 
@@ -82,4 +82,4 @@ export class RepoService {
     }
     this.isCloned = false;
   }
-} 
+}

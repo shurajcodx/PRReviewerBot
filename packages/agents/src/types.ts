@@ -5,7 +5,7 @@ export enum IssueSeverity {
   INFO = 'info',
   WARNING = 'warning',
   ERROR = 'error',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 /**
@@ -16,7 +16,7 @@ export enum IssueType {
   STYLE = 'style',
   BUG = 'bug',
   OPTIMIZATION = 'optimization',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 /**
@@ -38,42 +38,42 @@ export interface CodeIssue {
    * Unique identifier for the issue
    */
   id: string;
-  
+
   /**
    * Title of the issue
    */
   title: string;
-  
+
   /**
    * Detailed description of the issue
    */
   description: string;
-  
+
   /**
    * Severity level of the issue
    */
   severity: IssueSeverity;
-  
+
   /**
    * Type of the issue
    */
   type: IssueType;
-  
+
   /**
    * Location of the issue in the code
    */
   location: IssueLocation;
-  
+
   /**
    * Suggested fix for the issue
    */
   suggestedFix?: string;
-  
+
   /**
    * Agent that found the issue
    */
   agent: string;
-  
+
   /**
    * Additional metadata about the issue
    */
@@ -102,5 +102,11 @@ export interface FileChange {
 
 export interface GitProvider {
   getPullRequest(repoUrl: string, branch: string): Promise<PullRequest>;
-  createReviewComment(repoUrl: string, prId: string, comment: string, file: string, line: number): Promise<void>;
-} 
+  createReviewComment(
+    repoUrl: string,
+    prId: string,
+    comment: string,
+    file: string,
+    line: number,
+  ): Promise<void>;
+}

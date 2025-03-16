@@ -6,4 +6,4 @@ export * from './services/GitService';
 export * from './services/RepoService';
 
 // Export utilities
-export * from './utils/fileUtils'; 
+export * from './utils/fileUtils';

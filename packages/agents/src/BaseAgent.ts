@@ -9,7 +9,7 @@ export abstract class BaseAgent {
    * Name of the agent
    */
   abstract get name(): string;
-  
+
   /**
    * Analyze a file for issues
    * @param filePath Path to the file
@@ -18,7 +18,7 @@ export abstract class BaseAgent {
    * @returns Array of code issues
    */
   abstract analyze(filePath: string, content: string, repoDir: string): Promise<CodeIssue[]>;
-  
+
   /**
    * Generate a unique ID for an issue
    * @param type Issue type
@@ -31,7 +31,7 @@ export abstract class BaseAgent {
     const lineStr = line ? `-L${line}` : '';
     return `${this.name}-${type}-${fileName}${lineStr}-${Date.now().toString(36)}`;
   }
-  
+
   /**
    * Create a code issue
    * @param title Issue title
@@ -52,14 +52,14 @@ export abstract class BaseAgent {
     filePath: string,
     startLine?: number,
     endLine?: number,
-    suggestedFix?: string
+    suggestedFix?: string,
   ): CodeIssue {
     const location: IssueLocation = {
       filePath,
       startLine,
-      endLine
+      endLine,
     };
-    
+
     return {
       id: this.generateIssueId(type.toString(), filePath, startLine),
       title,
@@ -68,10 +68,10 @@ export abstract class BaseAgent {
       type,
       location,
       suggestedFix,
-      agent: this.name
+      agent: this.name,
     };
   }
-  
+
   /**
    * Extract the relative path from the absolute path
    * @param filePath Absolute file path
@@ -81,4 +81,4 @@ export abstract class BaseAgent {
   protected getRelativePath(filePath: string, repoDir: string): string {
     return path.relative(repoDir, filePath);
   }
-} 
+}

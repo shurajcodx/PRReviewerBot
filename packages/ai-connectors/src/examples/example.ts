@@ -9,7 +9,9 @@ async function main() {
   const openaiApiKey = process.env.OPENAI_API_KEY;
 
   if (!claudeApiKey && !openaiApiKey) {
-    console.error('No API keys found. Please set CLAUDE_API_KEY or OPENAI_API_KEY environment variables.');
+    console.error(
+      'No API keys found. Please set CLAUDE_API_KEY or OPENAI_API_KEY environment variables.',
+    );
     process.exit(1);
   }
 
@@ -50,7 +52,7 @@ ${codeToAnalyze}
     try {
       console.log('Using Claude connector...');
       const claudeConnector = AIConnectorFactory.createConnector('claude', claudeApiKey);
-      
+
       const claudeResponse = await claudeConnector.generateResponse(prompt);
       console.log('Claude response:');
       console.log(claudeResponse);
@@ -58,13 +60,13 @@ ${codeToAnalyze}
       console.error('Error with Claude connector:', error);
     }
   }
-  
+
   // Try OpenAI if API key is available
   if (openaiApiKey) {
     try {
       console.log('\nUsing OpenAI connector...');
       const openaiConnector = AIConnectorFactory.createConnector('openai', openaiApiKey);
-      
+
       const openaiResponse = await openaiConnector.generateResponse(prompt);
       console.log('OpenAI response:');
       console.log(openaiResponse);
@@ -77,4 +79,4 @@ ${codeToAnalyze}
 // Run the example
 main().catch(error => {
   console.error('Error running example:', error);
-}); 
+});

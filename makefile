@@ -51,6 +51,26 @@ test:
 	@printf "\033[0;32m>>> Running tests\033[0m\n"
 	pnpm -r test
 
+# Lint code
+lint:
+	@printf "\033[0;32m>>> Linting code\033[0m\n"
+	pnpm lint
+
+# Fix linting issues
+lint-fix:
+	@printf "\033[0;32m>>> Fixing linting issues\033[0m\n"
+	pnpm lint:fix
+
+# Format code
+format:
+	@printf "\033[0;32m>>> Formatting code\033[0m\n"
+	pnpm format
+
+# Check code formatting
+format-check:
+	@printf "\033[0;32m>>> Checking code formatting\033[0m\n"
+	pnpm format:check
+
 # Clean build artifacts
 clean:
 	@printf "\033[0;32m>>> Cleaning build artifacts\033[0m\n"
@@ -58,4 +78,4 @@ clean:
 	rm -rf packages/*/node_modules
 	rm -rf node_modules
 
-.PHONY: build.agent build.core build.ai-connectors build.output build.cli build install init-structure run-cli install-cli uninstall-cli test clean
+.PHONY: build.agent build.core build.ai-connectors build.output build.cli build install init-structure run-cli install-cli uninstall-cli test lint lint-fix format format-check clean

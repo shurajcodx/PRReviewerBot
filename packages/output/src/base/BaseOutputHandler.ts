@@ -7,7 +7,7 @@ import path from 'path';
  */
 export abstract class BaseOutputHandler implements OutputHandler {
   protected options: OutputHandlerOptions;
-  
+
   /**
    * Create a new base output handler
    * @param options Output handler options
@@ -15,14 +15,14 @@ export abstract class BaseOutputHandler implements OutputHandler {
   constructor(options: OutputHandlerOptions) {
     this.options = options;
   }
-  
+
   /**
    * Handle the output of code issues
    * @param issues Array of code issues
    * @returns Promise that resolves when the output is handled
    */
   abstract handleOutput(issues: CodeIssue[]): Promise<void>;
-  
+
   /**
    * Group issues by file
    * @param issues Array of code issues
@@ -30,20 +30,20 @@ export abstract class BaseOutputHandler implements OutputHandler {
    */
   protected groupIssuesByFile(issues: CodeIssue[]): Map<string, CodeIssue[]> {
     const groupedIssues = new Map<string, CodeIssue[]>();
-    
+
     for (const issue of issues) {
       const filePath = issue.location.filePath;
-      
+
       if (!groupedIssues.has(filePath)) {
         groupedIssues.set(filePath, []);
       }
-      
+
       groupedIssues.get(filePath)!.push(issue);
     }
-    
+
     return groupedIssues;
   }
-  
+
   /**
    * Group issues by type
    * @param issues Array of code issues
@@ -51,18 +51,18 @@ export abstract class BaseOutputHandler implements OutputHandler {
    */
   protected groupIssuesByType(issues: CodeIssue[]): Map<IssueType, CodeIssue[]> {
     const groupedIssues = new Map<IssueType, CodeIssue[]>();
-    
+
     for (const issue of issues) {
       if (!groupedIssues.has(issue.type)) {
         groupedIssues.set(issue.type, []);
       }
-      
+
       groupedIssues.get(issue.type)!.push(issue);
     }
-    
+
     return groupedIssues;
   }
-  
+
   /**
    * Group issues by severity
    * @param issues Array of code issues
@@ -70,18 +70,18 @@ export abstract class BaseOutputHandler implements OutputHandler {
    */
   protected groupIssuesBySeverity(issues: CodeIssue[]): Map<IssueSeverity, CodeIssue[]> {
     const groupedIssues = new Map<IssueSeverity, CodeIssue[]>();
-    
+
     for (const issue of issues) {
       if (!groupedIssues.has(issue.severity)) {
         groupedIssues.set(issue.severity, []);
       }
-      
+
       groupedIssues.get(issue.severity)!.push(issue);
     }
-    
+
     return groupedIssues;
   }
-  
+
   /**
    * Sort issues by severity (critical first, info last)
    * @param issues Array of code issues
@@ -92,14 +92,14 @@ export abstract class BaseOutputHandler implements OutputHandler {
       [IssueSeverity.CRITICAL]: 0,
       [IssueSeverity.ERROR]: 1,
       [IssueSeverity.WARNING]: 2,
-      [IssueSeverity.INFO]: 3
+      [IssueSeverity.INFO]: 3,
     };
-    
+
     return [...issues].sort((a, b) => {
       return severityOrder[a.severity] - severityOrder[b.severity];
     });
   }
-  
+
   /**
    * Get a relative file path
    * @param filePath Absolute file path
@@ -110,26 +110,26 @@ export abstract class BaseOutputHandler implements OutputHandler {
     if (!path.isAbsolute(filePath)) {
       return filePath;
     }
-    
+
     // If we have a repository URL, try to make the path relative to the repository root
     if (this.options.repoUrl) {
       // Extract the repository name from the URL
       const repoName = this.options.repoUrl.split('/').pop()?.replace('.git', '');
-      
+
       if (repoName) {
         // Try to find the repository name in the file path
         const repoIndex = filePath.indexOf(repoName);
-        
+
         if (repoIndex !== -1) {
           return filePath.substring(repoIndex + repoName.length + 1);
         }
       }
     }
-    
+
     // If we can't make it relative to the repository, return the basename
     return path.basename(filePath);
   }
-  
+
   /**
    * Get an emoji for a severity
    * @param severity Issue severity
@@ -149,7 +149,7 @@ export abstract class BaseOutputHandler implements OutputHandler {
         return '⚪';
     }
   }
-  
+
   /**
    * Get an emoji for an issue type
    * @param type Issue type
@@ -171,4 +171,4 @@ export abstract class BaseOutputHandler implements OutputHandler {
         return '❓';
     }
   }
-} 
+}

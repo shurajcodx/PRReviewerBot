@@ -9,54 +9,80 @@ import path from 'path';
 export async function isTextFile(filePath: string): Promise<boolean> {
   try {
     // Check if the file exists
-    if (!await fs.pathExists(filePath)) {
+    if (!(await fs.pathExists(filePath))) {
       return false;
     }
-    
+
     // Get file stats
     const stats = await fs.stat(filePath);
-    
+
     // Skip directories
     if (stats.isDirectory()) {
       return false;
     }
-    
+
     // Skip large files (> 1MB)
     if (stats.size > 1024 * 1024) {
       return false;
     }
-    
+
     // Get file extension
     const ext = path.extname(filePath).toLowerCase();
-    
+
     // Common binary file extensions
     const binaryExtensions = [
-      '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.svg',
-      '.pdf', '.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx',
-      '.zip', '.tar', '.gz', '.7z', '.rar',
-      '.exe', '.dll', '.so', '.dylib',
-      '.mp3', '.mp4', '.avi', '.mov', '.flv',
-      '.ttf', '.otf', '.woff', '.woff2'
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+      '.bmp',
+      '.ico',
+      '.svg',
+      '.pdf',
+      '.doc',
+      '.docx',
+      '.ppt',
+      '.pptx',
+      '.xls',
+      '.xlsx',
+      '.zip',
+      '.tar',
+      '.gz',
+      '.7z',
+      '.rar',
+      '.exe',
+      '.dll',
+      '.so',
+      '.dylib',
+      '.mp3',
+      '.mp4',
+      '.avi',
+      '.mov',
+      '.flv',
+      '.ttf',
+      '.otf',
+      '.woff',
+      '.woff2',
     ];
-    
+
     // If the extension is in the binary list, it's not a text file
     if (binaryExtensions.includes(ext)) {
       return false;
     }
-    
+
     // Read the first 1024 bytes of the file
     const buffer = Buffer.alloc(1024);
     const fd = await fs.open(filePath, 'r');
     const { bytesRead } = await fs.read(fd, buffer, 0, 1024, 0);
     await fs.close(fd);
-    
+
     // Check for null bytes (common in binary files)
     for (let i = 0; i < bytesRead; i++) {
       if (buffer[i] === 0) {
         return false;
       }
     }
-    
+
     return true;
   } catch (error) {
     console.warn(`Warning: Could not determine if ${filePath} is a text file: ${error}`);
@@ -72,7 +98,7 @@ export async function isTextFile(filePath: string): Promise<boolean> {
  */
 export function getFileLanguage(filePath: string): string | null {
   const ext = path.extname(filePath).toLowerCase();
-  
+
   const languageMap: Record<string, string> = {
     '.js': 'JavaScript',
     '.jsx': 'JavaScript (React)',
@@ -117,8 +143,8 @@ export function getFileLanguage(filePath: string): string | null {
     '.groovy': 'Groovy',
     '.tf': 'Terraform',
     '.vue': 'Vue',
-    '.svelte': 'Svelte'
+    '.svelte': 'Svelte',
   };
-  
+
   return languageMap[ext] || null;
-} 
+}

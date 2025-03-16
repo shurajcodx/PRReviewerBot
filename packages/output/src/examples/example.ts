@@ -12,11 +12,12 @@ async function main() {
       location: {
         filePath: 'src/utils/parser.js',
         startLine: 15,
-        endLine: 15
+        endLine: 15,
       },
-      suggestedFix: 'Consider using a safer alternative like JSON.parse() or a dedicated parser library.',
+      suggestedFix:
+        'Consider using a safer alternative like JSON.parse() or a dedicated parser library.',
       agent: 'security-agent',
-      id: ''
+      id: '',
     },
     {
       title: 'Unused variable',
@@ -26,11 +27,11 @@ async function main() {
       location: {
         filePath: 'src/components/UserProfile.tsx',
         startLine: 42,
-        endLine: 42
+        endLine: 42,
       },
       suggestedFix: 'Remove the unused variable or use it.',
       agent: 'style-agent',
-      id: ''
+      id: '',
     },
     {
       title: 'Inefficient algorithm',
@@ -40,11 +41,12 @@ async function main() {
       location: {
         filePath: 'src/utils/sorter.js',
         startLine: 23,
-        endLine: 35
+        endLine: 35,
       },
-      suggestedFix: 'Consider using a more efficient sorting algorithm like quicksort or mergesort.',
+      suggestedFix:
+        'Consider using a more efficient sorting algorithm like quicksort or mergesort.',
       agent: 'ai-agent',
-      id: ''
+      id: '',
     },
     {
       title: 'Potential null reference',
@@ -54,32 +56,32 @@ async function main() {
       location: {
         filePath: 'src/services/api.ts',
         startLine: 78,
-        endLine: 78
+        endLine: 78,
       },
       suggestedFix: 'Add a null check before accessing the property.',
       agent: 'ai-agent',
-      id: ''
-    }
+      id: '',
+    },
   ];
 
   // Example 1: Using FileOutputHandler
   console.log('Example 1: Using FileOutputHandler');
   const fileOutputHandler = OutputHandlerFactory.createOutputHandler('file', {
     filePath: './review-results.md',
-    groupByFile: true
+    groupByFile: true,
   });
-  
+
   await fileOutputHandler.handleOutput(issues);
-  
+
   // Example 2: Using FileOutputHandler with different grouping
   console.log('\nExample 2: Using FileOutputHandler with severity grouping');
   const fileOutputHandler2 = OutputHandlerFactory.createOutputHandler('file', {
     filePath: './review-results-by-severity.md',
-    groupBySeverity: true
+    groupBySeverity: true,
   });
-  
+
   await fileOutputHandler2.handleOutput(issues);
-  
+
   // Example 3: Using GitHubPROutputHandler
   // Note: This requires valid GitHub credentials and PR information
   console.log('\nExample 3: Using GitHubPROutputHandler');
@@ -87,7 +89,7 @@ async function main() {
     const githubToken = process.env.GITHUB_TOKEN;
     const prNumber = parseInt(process.env.PR_NUMBER || '0', 10);
     const repoUrl = process.env.REPO_URL;
-    
+
     if (!githubToken || !prNumber || !repoUrl) {
       console.log('Skipping GitHub PR example: Missing required environment variables');
       console.log('Required: GITHUB_TOKEN, PR_NUMBER, REPO_URL');
@@ -95,9 +97,9 @@ async function main() {
       const githubOutputHandler = OutputHandlerFactory.createOutputHandler('github-pr', {
         gitToken: githubToken,
         prNumber: prNumber,
-        repoUrl: repoUrl
+        repoUrl: repoUrl,
       });
-      
+
       await githubOutputHandler.handleOutput(issues);
     }
   } catch (error) {
@@ -108,4 +110,4 @@ async function main() {
 // Run the example
 main().catch(error => {
   console.error('Error running example:', error);
-}); 
+});

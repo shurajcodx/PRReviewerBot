@@ -9,7 +9,7 @@ export class OpenAIConnector extends BaseAIConnector {
   private model: string;
   private maxTokens: number = 4000;
   private temperature: number = 0.2;
-  
+
   /**
    * Create a new OpenAI connector
    * @param apiKey API key for OpenAI
@@ -19,7 +19,7 @@ export class OpenAIConnector extends BaseAIConnector {
     super(apiKey);
     this.model = model;
   }
-  
+
   /**
    * Generate a response from OpenAI
    * @param prompt Prompt to send to OpenAI
@@ -35,38 +35,42 @@ export class OpenAIConnector extends BaseAIConnector {
             messages: [
               {
                 role: 'user',
-                content: prompt
-              }
+                content: prompt,
+              },
             ],
             max_tokens: this.maxTokens,
-            temperature: this.temperature
+            temperature: this.temperature,
           },
           {
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${this.apiKey}`
-            }
-          }
+              Authorization: `Bearer ${this.apiKey}`,
+            },
+          },
         );
-        
+
         return response.data.choices[0].message.content;
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           const status = error.response.status;
           const data = error.response.data;
-          
+
           if (status === 429) {
-            throw new Error(`OpenAI API rate limit exceeded: ${data.error?.message || 'Unknown error'}`);
+            throw new Error(
+              `OpenAI API rate limit exceeded: ${data.error?.message || 'Unknown error'}`,
+            );
           } else {
-            throw new Error(`OpenAI API error (${status}): ${data.error?.message || 'Unknown error'}`);
+            throw new Error(
+              `OpenAI API error (${status}): ${data.error?.message || 'Unknown error'}`,
+            );
           }
         }
-        
+
         throw error;
       }
     });
   }
-  
+
   /**
    * Set the maximum number of tokens
    * @param maxTokens Maximum number of tokens
@@ -76,7 +80,7 @@ export class OpenAIConnector extends BaseAIConnector {
     this.maxTokens = maxTokens;
     return this;
   }
-  
+
   /**
    * Set the model
    * @param model Model to use
@@ -86,7 +90,7 @@ export class OpenAIConnector extends BaseAIConnector {
     this.model = model;
     return this;
   }
-  
+
   /**
    * Set the temperature
    * @param temperature Temperature (0-1)
@@ -96,4 +100,4 @@ export class OpenAIConnector extends BaseAIConnector {
     this.temperature = temperature;
     return this;
   }
-} 
+}

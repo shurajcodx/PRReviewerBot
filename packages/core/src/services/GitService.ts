@@ -26,13 +26,13 @@ export class GitService {
   async cloneRepository(repoUrl: string, targetDir: string): Promise<void> {
     // Ensure the target directory exists
     await fs.ensureDir(targetDir);
-    
+
     // Add token to URL if needed
     const authUrl = this.addAuthToUrl(repoUrl);
-    
+
     // Clone the repository
     await this.git.clone(authUrl, targetDir);
-    
+
     // Initialize git in the target directory
     this.git = simpleGit(targetDir);
   }
@@ -52,10 +52,10 @@ export class GitService {
   async getChangedFiles(): Promise<string[]> {
     // Get the default branch (main or master)
     const defaultBranch = await this.getDefaultBranch();
-    
+
     // Get diff with default branch
     const diff = await this.git.diff([`${defaultBranch}...HEAD`, '--name-only']);
-    
+
     // Split the result into lines and filter out empty lines
     return diff.split('\n').filter(line => line.trim() !== '');
   }
@@ -86,7 +86,7 @@ export class GitService {
       if (match && match[1]) {
         return match[1];
       }
-      
+
       // Fallback to checking if main or master exists
       const branches = await this.git.branch();
       if (branches.all.includes('main')) {
@@ -94,7 +94,7 @@ export class GitService {
       } else if (branches.all.includes('master')) {
         return 'master';
       }
-      
+
       // Default to main if we can't determine
       return 'main';
     } catch (error) {
@@ -125,4 +125,4 @@ export class GitService {
       return url;
     }
   }
-} 
+}

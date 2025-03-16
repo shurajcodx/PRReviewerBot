@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
  */
 export class OptimizationAgent extends BaseAgent {
   private aiConnector: AIConnector;
-  
+
   /**
    * Create a new OptimizationAgent
    * @param aiConnector AI connector
@@ -24,7 +24,7 @@ export class OptimizationAgent extends BaseAgent {
   get name(): string {
     return 'optimization-agent';
   }
-  
+
   /**
    * Analyze a file for optimization issues
    * @param filePath Path to the file
@@ -34,12 +34,12 @@ export class OptimizationAgent extends BaseAgent {
    */
   async analyze(filePath: string, content: string, repoDir: string): Promise<CodeIssue[]> {
     const issues: CodeIssue[] = [];
-    
+
     // First, perform static analysis for common issues
     issues.push(...this.checkForLoopIssues(filePath, content));
     issues.push(...this.checkForMemoryIssues(filePath, content));
     issues.push(...this.checkForAsyncIssues(filePath, content));
-    
+
     // Then, use AI to find more complex optimization issues
     try {
       const aiIssues = await this.getAIOptimizationSuggestions(filePath, content);
@@ -47,24 +47,27 @@ export class OptimizationAgent extends BaseAgent {
     } catch (error) {
       console.error(`Error getting AI optimization suggestions: ${error}`);
     }
-    
+
     return issues;
   }
-  
+
   /**
    * Get optimization suggestions from AI
    * @param filePath Path to the file
    * @param content Content of the file
    * @returns Promise that resolves to an array of code issues
    */
-  private async getAIOptimizationSuggestions(filePath: string, content: string): Promise<CodeIssue[]> {
+  private async getAIOptimizationSuggestions(
+    filePath: string,
+    content: string,
+  ): Promise<CodeIssue[]> {
     const fileExtension = filePath.split('.').pop() || '';
     const language = this.getLanguageFromExtension(fileExtension);
-    
+
     if (!language) {
       return [];
     }
-    
+
     const prompt = `
 You are a code optimization expert. Analyze the following ${language} code for performance issues and optimization opportunities.
 Focus on algorithmic efficiency, memory usage, and performance bottlenecks.
@@ -103,7 +106,7 @@ Only include genuine optimization issues. If no issues are found, return an empt
       return [];
     }
   }
-  
+
   /**
    * Parse AI response into code issues
    * @param response AI response
@@ -117,13 +120,13 @@ Only include genuine optimization issues. If no issues are found, return an empt
       if (!jsonMatch) {
         return [];
       }
-      
+
       const jsonResponse = JSON.parse(jsonMatch[0]);
-      
+
       if (!jsonResponse.issues || !Array.isArray(jsonResponse.issues)) {
         return [];
       }
-      
+
       return jsonResponse.issues.map((issue: any) => ({
         id: uuidv4(),
         title: issue.title,
@@ -133,17 +136,17 @@ Only include genuine optimization issues. If no issues are found, return an empt
         location: {
           filePath,
           startLine: issue.location?.startLine || 1,
-          endLine: issue.location?.endLine || 1
+          endLine: issue.location?.endLine || 1,
         },
         suggestedFix: issue.suggestedFix || '',
-        agent: this.name
+        agent: this.name,
       }));
     } catch (error) {
       console.error(`Error parsing AI response: ${error}`);
       return [];
     }
   }
-  
+
   /**
    * Get language from file extension
    * @param extension File extension
@@ -151,26 +154,26 @@ Only include genuine optimization issues. If no issues are found, return an empt
    */
   private getLanguageFromExtension(extension: string): string | null {
     const extensionMap: Record<string, string> = {
-      'js': 'JavaScript',
-      'ts': 'TypeScript',
-      'jsx': 'JavaScript React',
-      'tsx': 'TypeScript React',
-      'py': 'Python',
-      'java': 'Java',
-      'c': 'C',
-      'cpp': 'C++',
-      'cs': 'C#',
-      'go': 'Go',
-      'rb': 'Ruby',
-      'php': 'PHP',
-      'swift': 'Swift',
-      'kt': 'Kotlin',
-      'rs': 'Rust'
+      js: 'JavaScript',
+      ts: 'TypeScript',
+      jsx: 'JavaScript React',
+      tsx: 'TypeScript React',
+      py: 'Python',
+      java: 'Java',
+      c: 'C',
+      cpp: 'C++',
+      cs: 'C#',
+      go: 'Go',
+      rb: 'Ruby',
+      php: 'PHP',
+      swift: 'Swift',
+      kt: 'Kotlin',
+      rs: 'Rust',
     };
-    
+
     return extensionMap[extension.toLowerCase()] || null;
   }
-  
+
   /**
    * Check for loop-related performance issues
    * @param filePath Path to the file
@@ -180,15 +183,15 @@ Only include genuine optimization issues. If no issues are found, return an empt
   private checkForLoopIssues(filePath: string, content: string): CodeIssue[] {
     const issues: CodeIssue[] = [];
     const lines = content.split('\n');
-    
+
     // Check for nested loops (potential O(n²) complexity)
     let inLoop = false;
     let loopStartLine = -1;
     let nestedLoopStartLine = -1;
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Check for loop start
       if (line.match(/\b(for|while)\b/) && line.includes('(') && !line.includes('//')) {
         if (inLoop) {
@@ -199,7 +202,7 @@ Only include genuine optimization issues. If no issues are found, return an empt
           loopStartLine = i + 1;
         }
       }
-      
+
       // Check for loop end
       if (line === '}' && inLoop) {
         if (nestedLoopStartLine !== -1) {
@@ -207,18 +210,20 @@ Only include genuine optimization issues. If no issues are found, return an empt
           issues.push({
             id: uuidv4(),
             title: 'Nested loop detected',
-            description: 'Nested loops can lead to O(n²) time complexity, which may cause performance issues for large datasets.',
+            description:
+              'Nested loops can lead to O(n²) time complexity, which may cause performance issues for large datasets.',
             severity: IssueSeverity.WARNING,
             type: IssueType.OPTIMIZATION,
             location: {
               filePath,
               startLine: loopStartLine,
-              endLine: i + 1
+              endLine: i + 1,
             },
-            suggestedFix: 'Consider refactoring to avoid nested loops or use more efficient data structures like Maps or Sets.',
-            agent: this.name
+            suggestedFix:
+              'Consider refactoring to avoid nested loops or use more efficient data structures like Maps or Sets.',
+            agent: this.name,
           });
-          
+
           nestedLoopStartLine = -1;
         } else {
           // End of outer loop
@@ -226,29 +231,31 @@ Only include genuine optimization issues. If no issues are found, return an empt
           loopStartLine = -1;
         }
       }
-      
+
       // Check for array.length in loop condition
       if (inLoop && line.includes('.length') && line.includes('for (')) {
         issues.push({
           id: uuidv4(),
           title: 'Array length in loop condition',
-          description: 'Accessing array.length in each iteration can be inefficient for large arrays.',
+          description:
+            'Accessing array.length in each iteration can be inefficient for large arrays.',
           severity: IssueSeverity.INFO,
           type: IssueType.OPTIMIZATION,
           location: {
             filePath,
             startLine: i + 1,
-            endLine: i + 1
+            endLine: i + 1,
           },
-          suggestedFix: 'Cache the array length before the loop: const len = array.length; for (let i = 0; i < len; i++)',
-          agent: this.name
+          suggestedFix:
+            'Cache the array length before the loop: const len = array.length; for (let i = 0; i < len; i++)',
+          agent: this.name,
         });
       }
     }
-    
+
     return issues;
   }
-  
+
   /**
    * Check for memory-related performance issues
    * @param filePath Path to the file
@@ -258,14 +265,14 @@ Only include genuine optimization issues. If no issues are found, return an empt
   private checkForMemoryIssues(filePath: string, content: string): CodeIssue[] {
     const issues: CodeIssue[] = [];
     const lines = content.split('\n');
-    
+
     // Check for large object literals
     let objectLiteralStart = -1;
     let objectLiteralLines = 0;
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Check for object literal start
       if (line.includes('{') && !line.includes('//') && !line.includes('/*')) {
         if (objectLiteralStart === -1) {
@@ -275,7 +282,7 @@ Only include genuine optimization issues. If no issues are found, return an empt
           objectLiteralLines++;
         }
       }
-      
+
       // Check for object literal end
       if (line.includes('}') && objectLiteralStart !== -1) {
         if (objectLiteralLines > 50) {
@@ -288,17 +295,18 @@ Only include genuine optimization issues. If no issues are found, return an empt
             location: {
               filePath,
               startLine: objectLiteralStart,
-              endLine: i + 1
+              endLine: i + 1,
             },
-            suggestedFix: 'Consider breaking this into smaller objects or loading data dynamically.',
-            agent: this.name
+            suggestedFix:
+              'Consider breaking this into smaller objects or loading data dynamically.',
+            agent: this.name,
           });
         }
-        
+
         objectLiteralStart = -1;
         objectLiteralLines = 0;
       }
-      
+
       // Check for memory leaks in event listeners
       if (line.includes('addEventListener') && !content.includes('removeEventListener')) {
         issues.push({
@@ -310,17 +318,18 @@ Only include genuine optimization issues. If no issues are found, return an empt
           location: {
             filePath,
             startLine: i + 1,
-            endLine: i + 1
+            endLine: i + 1,
           },
-          suggestedFix: 'Make sure to remove event listeners when they are no longer needed using removeEventListener.',
-          agent: this.name
+          suggestedFix:
+            'Make sure to remove event listeners when they are no longer needed using removeEventListener.',
+          agent: this.name,
         });
       }
     }
-    
+
     return issues;
   }
-  
+
   /**
    * Check for async-related performance issues
    * @param filePath Path to the file
@@ -330,19 +339,19 @@ Only include genuine optimization issues. If no issues are found, return an empt
   private checkForAsyncIssues(filePath: string, content: string): CodeIssue[] {
     const issues: CodeIssue[] = [];
     const lines = content.split('\n');
-    
+
     // Check for sequential async operations that could be parallelized
     const asyncOperations: number[] = [];
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Check for await keyword
       if (line.includes('await ') && !line.includes('//')) {
         asyncOperations.push(i + 1);
       }
     }
-    
+
     // Check for sequential awaits
     for (let i = 0; i < asyncOperations.length - 1; i++) {
       if (asyncOperations[i + 1] - asyncOperations[i] === 1) {
@@ -355,17 +364,18 @@ Only include genuine optimization issues. If no issues are found, return an empt
           location: {
             filePath,
             startLine: asyncOperations[i],
-            endLine: asyncOperations[i + 1]
+            endLine: asyncOperations[i + 1],
           },
-          suggestedFix: 'Consider using Promise.all() to run these operations in parallel if they don\'t depend on each other.',
-          agent: this.name
+          suggestedFix:
+            "Consider using Promise.all() to run these operations in parallel if they don't depend on each other.",
+          agent: this.name,
         });
-        
+
         // Skip the next one since we've already reported it
         i++;
       }
     }
-    
+
     return issues;
   }
-} 
+}
