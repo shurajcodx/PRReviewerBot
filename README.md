@@ -110,14 +110,6 @@ make format-check
    prreviewbot review --ai-model ollama --ai-options '{"model":"codellama","baseUrl":"http://localhost:11434"}' [options]
    ```
 
-   Alternatively, add to your `.env` file:
-
-   ```
-   AI_MODEL=ollama
-   OLLAMA_MODEL=codellama
-   OLLAMA_BASE_URL=http://localhost:11434
-   ```
-
 ### GitHub Integration (Optional)
 
 To post review comments directly on GitHub PRs:
